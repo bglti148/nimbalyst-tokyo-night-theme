@@ -238,3 +238,70 @@ ul[class*="nim-"] li {
 .nim-table tr:nth-child(even) .nim-table-cell {
   background-color: var(--nim-table-stripe);
 }
+
+/* ---------- Editor-light variant override -------------------------------- */
+/*
+ * Scoped redeclaration of --nim-* tokens for the two editor-light theme
+ * variants. Descendants of .nimbalyst-editor resolve variables from this
+ * closer declaration; everything outside the editor wrapper continues to
+ * inherit dark Tokyo Night values from the inline styles on <html>.
+ *
+ * Palette is upstream Tokyo Night Day. The two variants share the same
+ * editor palette — Storm vs Night identity lives in the chrome.
+ */
+
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor,
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor {
+  /* Backgrounds */
+  --nim-bg: #e6e7ed;
+  --nim-bg-secondary: #e1e2e8;
+  --nim-bg-tertiary: #d6d8de;
+  --nim-bg-hover: #e1e2e8;
+  --nim-bg-selected: #acb0bf40;
+  --nim-bg-active: #e6e7ed;
+
+  /* Text */
+  --nim-text: #343b59;
+  --nim-text-muted: #5a607d;
+  --nim-text-faint: #70728099;
+  --nim-text-disabled: #707280;
+
+  /* Borders & accent */
+  --nim-border: #c4c8da;
+  --nim-primary: #2959aa;
+  --nim-link: #2959aa;
+  --nim-link-hover: #006c86;
+
+  /* Quote & highlight */
+  --nim-quote-text: #5a607d;
+  --nim-quote-border: #2959aa;
+  --nim-highlight-bg: #acb0bf40;
+  --nim-highlight-border: #2959aa;
+
+  /* Code (block + inline) */
+  --nim-code-bg: #d6d8de;
+  --nim-code-text: #343b59;
+  --nim-code-border: #c4c8da;
+  --nim-code-gutter: #d6d8de;
+
+  /* Syntax tokens (light-mode contrast) */
+  --nim-code-comment: #888b94;
+  --nim-code-punctuation: #40434f;
+  --nim-code-property: #006c86;
+  --nim-code-selector: #2959aa;
+  --nim-code-operator: #006c86;
+  --nim-code-attr: #7b43ba;
+  --nim-code-variable: #40434f;
+  --nim-code-function: #8c4351;
+
+  /* Tables */
+  --nim-table-border: #c4c8da;
+  --nim-table-header: #e1e2e8;
+  --nim-table-cell: #e6e7ed;
+  --nim-table-stripe: #dcdee5;
+
+  /* Scrollbar */
+  --nim-scrollbar-thumb: #c4c8da;
+  --nim-scrollbar-thumb-hover: #a0a4b8;
+  --nim-scrollbar-track: #e6e7ed;
+}
