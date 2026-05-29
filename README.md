@@ -1,6 +1,6 @@
 # Tokyo Night for Nimbalyst
 
-A port of the [Tokyo Night](https://github.com/tokyo-night/tokyo-night-vscode-theme) Visual Studio Code theme to [Nimbalyst](https://github.com/Nimbalyst/nimbalyst). Includes two dark variants: **Tokyo Night** (canonical `#1a1b26` background) and **Tokyo Night Storm** (lighter `#24283b` background).
+A port of the [Tokyo Night](https://github.com/tokyo-night/tokyo-night-vscode-theme) Visual Studio Code theme to [Nimbalyst](https://github.com/Nimbalyst/nimbalyst). Includes two dark variants: **Tokyo Night** (canonical `#1a1b26` background) and **Tokyo Night Storm** (lighter `#24283b` background), plus a typography and spacing layer for Nimbalyst's native markdown editor.
 
 Manifest-only extension — no JavaScript, no build step.
 
@@ -36,7 +36,8 @@ The 16-color ANSI terminal palette is ported 1:1 from the upstream theme.
 | --- | --- |
 | App chrome (sidebar, tabs, statusbar, panels) | Full |
 | Terminal (16-color ANSI + cursor, selection) | Full |
-| Markdown / Lexical code blocks | High — 8 syntax buckets mapped from Tokyo Night's TextMate scopes |
+| Markdown editor typography (headings, paragraphs, lists, tables, quotes, links, code) | Full — modular 1.25 type scale with monospace code stack, themed quote bars, and subtle link underlines |
+| Markdown / Lexical code-token colors | High — 8 syntax buckets mapped from Tokyo Night's TextMate scopes |
 | Diff editor, tables, scrollbars, quotes | Full |
 | **Monaco code editor syntax highlighting** | **Not themable** — Nimbalyst does not expose Monaco theming through the extension API. Monaco uses Nimbalyst's built-in palette regardless of the active extension theme. |
 
