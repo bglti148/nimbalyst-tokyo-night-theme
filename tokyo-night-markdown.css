@@ -211,8 +211,13 @@
 
 /* ---------- Lists ------------------------------------------------------- */
 /*
- * Lexical nests lists via `.nim-ol1`..`.nim-ol5` and the unordered analogue.
- * Match line-height to paragraphs so list items read as prose.
+ * Unified treatment for both ordered and unordered lists:
+ * - `outside` marker positioning so wrapped multi-line text aligns under
+ *   the first character of the first line (not under the marker), and so
+ *   OL and UL text edges sit at the same x-coordinate.
+ * - Tight line-height so each item reads as a contained unit.
+ * - 1.5rem padding-left gives the marker gutter enough room for double-
+ *   digit ordered numbering ("10.", "99.") without overflow.
  */
 
 [class^="nim-ol"],
@@ -222,6 +227,7 @@ ul[class*="nim-"] {
   padding-left: 1.5rem;
   line-height: 1.4;
   margin: 0.5rem 0;
+  list-style-position: outside;
 }
 
 [class^="nim-ol"] li,
@@ -237,17 +243,6 @@ ul[class*="nim-"] li {
 [class^="nim-ul"] [class^="nim-ol"],
 [class^="nim-ul"] [class^="nim-ul"] {
   margin: 0.25rem 0;
-}
-
-/*
- * Unordered-list marker positioning: switch to outside positioning so the
- * bullet-to-text gap is governed by the gutter (smaller padding = tighter
- * gap). Line-height and per-item margin are handled by the combined ol/ul
- * rule above so both list types stay visually unified.
- */
-.nim-ul {
-  list-style-position: outside;
-  padding-left: 1.25rem;
 }
 
 /* ---------- Tables ------------------------------------------------------ */
