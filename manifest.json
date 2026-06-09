@@ -1,7 +1,7 @@
 {
   "id": "com.bglti148.tokyo-night",
   "name": "Tokyo Night",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Tokyo Night theme for Nimbalyst with a configurable settings panel. Light editor and Storm tone are user-toggleable. Per-file-type icon colors, heading weight controls, editor width and top padding all adjustable from Settings → Tokyo Night.",
   "apiVersion": "1.0",
   "main": "dist/index.js",
@@ -102,66 +102,6 @@
         }
       }
     ],
-    "configuration": {
-      "title": "Tokyo Night",
-      "properties": {
-        "editorLight": {
-          "type": "boolean",
-          "default": false,
-          "description": "Render the markdown editor pane with a light background while keeping the UI chrome dark.",
-          "scope": "user"
-        },
-        "stormTone": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the Storm palette (lighter dark background) for app chrome instead of canonical Tokyo Night.",
-          "scope": "user"
-        },
-        "maxWidth": {
-          "type": "number",
-          "default": 800,
-          "minimum": 400,
-          "maximum": 1200,
-          "description": "Maximum width (px) of the markdown editor content column.",
-          "scope": "user"
-        },
-        "topPadding": {
-          "type": "number",
-          "default": 80,
-          "minimum": 0,
-          "maximum": 200,
-          "description": "Space (px) at the top of every markdown document before the first heading or paragraph.",
-          "scope": "user"
-        },
-        "h1Weight": {
-          "type": "number",
-          "default": 800,
-          "enum": [400, 500, 600, 700, 800, 900],
-          "description": "Font weight for H1 headings.",
-          "scope": "user"
-        },
-        "h2Weight": {
-          "type": "number",
-          "default": 700,
-          "enum": [400, 500, 600, 700, 800, 900],
-          "description": "Font weight for H2 headings.",
-          "scope": "user"
-        },
-        "h3Weight": {
-          "type": "number",
-          "default": 600,
-          "enum": [400, 500, 600, 700, 800, 900],
-          "description": "Font weight for H3 headings.",
-          "scope": "user"
-        },
-        "iconColors": {
-          "type": "object",
-          "default": {},
-          "description": "File type icon colors keyed by extension (without leading dot). Special files use _readme, _package, _gitignore, _license keys.",
-          "scope": "user"
-        }
-      }
-    },
     "settingsPanel": {
       "component": "TokyoNightSettingsPanel",
       "title": "Tokyo Night",
