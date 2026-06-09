@@ -110,7 +110,8 @@
 
 .nim-paragraph {
   line-height: 1.65;
-  margin: 0 0 1rem;
+  margin: 0;
+  padding: 0;
 }
 
 /* ---------- Code -------------------------------------------------------- */
@@ -352,4 +353,18 @@ html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimb
 html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor.dark-theme .icon,
 html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor.dark-theme .icon {
   filter: none;
+}
+
+/*
+ * Floating text-format toolbar: give the active state a visibly distinct
+ * gray background. Default behavior uses --nim-bg-active which in our
+ * editor-light variants is ~2 shades different from the popup bg — the
+ * highlight technically applies but is nearly imperceptible. Using a
+ * literal mid-gray here ensures the active button stands out against the
+ * popup. Targets the popup-item.active class directly rather than
+ * overriding --nim-bg-active so we don't disturb every other active
+ * state elsewhere in the editor.
+ */
+.floating-text-format-popup button.popup-item.active {
+  background-color: #c4c8da;
 }
