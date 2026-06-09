@@ -3,3 +3,7 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+node_modules/
+*.tsbuildinfo
+# Note: dist/ is intentionally NOT gitignored — committed so the extension
+# installs without requiring users to run `npm install && npm run build`.

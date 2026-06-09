@@ -1,9 +1,15 @@
 /*
- * Tokyo Night — Markdown readability layer for Nimbalyst's native editor.
+ * Tokyo Night — Markdown readability + file icon coloring layer for
+ * Nimbalyst's native editor and file explorer.
  *
- * Targets the Lexical-based markdown editor via the `.nim-*` class set.
- * All colors reference `--nim-*` variables so this stylesheet adapts to
- * whichever Tokyo Night variant (Night or Storm) is active.
+ * Targets the Lexical-based markdown editor via the `.nim-*` class set,
+ * the file tree via the `.file-tree-icon` wrapper (with per-extension
+ * classes added at runtime by the extension's JS layer), and the
+ * editor-light visual mode via the `.tn-editor-light` class toggle.
+ *
+ * Every tunable value uses var(--tokyo-night-*, <default>) so the CSS
+ * works correctly even before the JS sets variables (the var() fallback
+ * applies). The JS overrides only when the user has changed a setting.
  *
  * Typography scale: modular 1.25 anchored at body = 1rem.
  */
@@ -13,12 +19,12 @@
  * Constrain the editor content area to a doc-style reading column.
  * Scopes to `.nimbalyst-editor .editor-shell`, which only mounts for
  * markdown (.md) and plain-text (.txt) files. Other file types use
- * different editors (Monaco for code, RevoGrid for CSV, Excalidraw for
- * diagrams) that mount as siblings and are unaffected.
+ * different editors (Monaco, RevoGrid, Excalidraw) that mount as siblings
+ * and are unaffected.
  */
 
 .nimbalyst-editor .editor-shell {
-  max-width: 800px;
+  max-width: var(--tokyo-night-max-width, 800px);
   margin-left: auto;
   margin-right: auto;
   padding: 0 2rem;
@@ -28,24 +34,16 @@
  * Breathing room at the top of every document. Applied to .editor (the
  * contenteditable area, inside .editor-scroller) so document headers and
  * the toolbar — which sit at sibling/ancestor levels — are unaffected.
- * Composes with the .nim-h1:first-child { margin-top: 0 } rule below:
- * the heading nestles cleanly against the 80px padding rather than
- * stacking on top of its own natural margin-top.
  */
 .nimbalyst-editor .editor {
-  padding-top: 80px;
+  padding-top: var(--tokyo-night-top-padding, 80px);
 }
 
 /* ---------- Headings ---------------------------------------------------- */
-/*
- * Tighter line-height than body so two-line headings stay coherent.
- * Top margin > bottom margin: associates a heading with the content below it,
- * not the content above.
- */
 
 .nim-h1 {
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: var(--tokyo-night-h1-weight, 800);
   line-height: 1.2;
   color: var(--nim-text);
   margin: 0 0 1rem;
@@ -54,7 +52,7 @@
 
 .nim-h2 {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: var(--tokyo-night-h2-weight, 700);
   line-height: 1.25;
   color: var(--nim-text);
   margin: 0 0 0.75rem;
@@ -65,7 +63,7 @@
 
 .nim-h3 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: var(--tokyo-night-h3-weight, 600);
   line-height: 1.3;
   color: var(--nim-text);
   margin: 1.75rem 0 0.5rem;
@@ -97,16 +95,11 @@
   margin: 1.25rem 0 0.5rem;
 }
 
-/*
- * First H3 in the document shouldn't push down. H1 and H2 already have
- * margin-top: 0 unconditionally, so they don't need this rule.
- */
 .nim-h3:first-child {
   margin-top: 0;
 }
 
 /* ---------- Paragraphs --------------------------------------------------- */
-/* 1.65 line-height: generous enough for prose, tight enough to feel deliberate. */
 
 .nim-paragraph {
   line-height: 1.65;
@@ -115,11 +108,6 @@
 }
 
 /* ---------- Code -------------------------------------------------------- */
-/*
- * Cascading monospace stack picks the best font the user has installed.
- * Slightly smaller font-size for density in fenced blocks; em-based for
- * inline so it scales with surrounding text.
- */
 
 .nim-code {
   font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Mono',
@@ -148,10 +136,6 @@
 }
 
 /* ---------- Blockquote -------------------------------------------------- */
-/*
- * Thicker left bar in Tokyo Night blue for visual anchoring.
- * Upright (not italic) for better readability of longer quotes.
- */
 
 .nim-quote {
   border-left: 3px solid var(--nim-primary);
@@ -168,10 +152,6 @@
 }
 
 /* ---------- Links ------------------------------------------------------- */
-/*
- * Subtle underline that intensifies on hover. Underline offset keeps the
- * line off the text baseline for cleaner reading.
- */
 
 .nim-link {
   color: var(--nim-link);
@@ -210,13 +190,10 @@
 
 /* ---------- Lists ------------------------------------------------------- */
 /*
- * Unified treatment for both ordered and unordered lists:
- * - `outside` marker positioning so wrapped multi-line text aligns under
- *   the first character of the first line (not under the marker), and so
- *   OL and UL text edges sit at the same x-coordinate.
- * - Tight line-height so each item reads as a contained unit.
- * - 1.5rem padding-left gives the marker gutter enough room for double-
- *   digit ordered numbering ("10.", "99.") without overflow.
+ * Unified treatment for both ordered and unordered lists: outside marker
+ * positioning so wrapped multi-line text aligns under the first character
+ * of the first line, tight line-height for contained items, 1.5rem
+ * padding-left so the marker gutter fits double-digit ordered numbering.
  */
 
 [class^="nim-ol"],
@@ -272,19 +249,16 @@ ul[class*="nim-"] li {
   color: var(--nim-text);
 }
 
-/* ---------- Editor-light variant override -------------------------------- */
+/* ---------- Editor-light mode (class-based toggle) ---------------------- */
 /*
- * Scoped redeclaration of --nim-* tokens for the two editor-light theme
- * variants. Descendants of .nimbalyst-editor resolve variables from this
- * closer declaration; everything outside the editor wrapper continues to
- * inherit dark Tokyo Night values from the inline styles on <html>.
- *
- * Palette is upstream Tokyo Night Day. The two variants share the same
- * editor palette — Storm vs Night identity lives in the chrome.
+ * When the user toggles "Light editor for markdown files" in settings,
+ * the extension's JS adds .tn-editor-light to all .nimbalyst-editor
+ * containers. CSS variable scoping makes descendants of the container
+ * see the light values; everything outside (chrome) still inherits
+ * dark values from <html>'s inline styles.
  */
 
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor,
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor {
+.nimbalyst-editor.tn-editor-light {
   /* Backgrounds */
   --nim-bg: #e6e7ed;
   --nim-bg-secondary: #e1e2e8;
@@ -341,30 +315,64 @@ html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimb
 
 /*
  * Revert Nimbalyst's dark-theme icon inversion inside the editor-light
- * variants. Nimbalyst sets `filter: invert(1)` on icons under
- * `.nimbalyst-editor.dark-theme` (true for our themes since `isDark: true`),
- * which turns its dark SVG icon assets into light icons. But our editor
- * surface is light, so the inverted (light) icons become invisible against
- * the light toolbar/popup background. Restoring `filter: none` brings back
- * the original dark icons so they read clearly on the light surface.
+ * mode. Nimbalyst sets `filter: invert(1)` on icons under
+ * `.nimbalyst-editor.dark-theme` (our theme has isDark: true), which
+ * turns dark SVG icon assets into light icons. With editor-light active,
+ * the surface is light, so light icons disappear. `filter: none`
+ * restores the original dark icons.
  */
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor.dark-theme i,
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor.dark-theme i,
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor.dark-theme .icon,
-html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor.dark-theme .icon {
+.nimbalyst-editor.tn-editor-light.dark-theme i,
+.nimbalyst-editor.tn-editor-light.dark-theme .icon {
   filter: none;
 }
 
 /*
  * Floating text-format toolbar: give the active state a visibly distinct
- * gray background. Default behavior uses --nim-bg-active which in our
- * editor-light variants is ~2 shades different from the popup bg — the
- * highlight technically applies but is nearly imperceptible. Using a
- * literal mid-gray here ensures the active button stands out against the
- * popup. Targets the popup-item.active class directly rather than
- * overriding --nim-bg-active so we don't disturb every other active
- * state elsewhere in the editor.
+ * gray background. Otherwise the active highlight is nearly imperceptible
+ * against the light popup background in editor-light mode.
  */
 .floating-text-format-popup button.popup-item.active {
   background-color: #c4c8da;
 }
+
+/* ---------- File icon coloring ----------------------------------------- */
+/*
+ * Per-file-type colors for icons in the file explorer. The extension's
+ * fileTreeObserver adds `file-ext-{key}` classes to `.file-tree-file`
+ * rows at runtime; CSS reads color from `--tokyo-night-icon-{key}` with
+ * the default baked into the var() fallback.
+ */
+
+.file-ext-md .file-tree-icon          { color: var(--tokyo-night-icon-md, #a4df2e); }
+.file-ext-markdown .file-tree-icon    { color: var(--tokyo-night-icon-markdown, #a4df2e); }
+.file-ext-json .file-tree-icon        { color: var(--tokyo-night-icon-json, #ae81ff); }
+.file-ext-ts .file-tree-icon          { color: var(--tokyo-night-icon-ts, #7aa2f7); }
+.file-ext-tsx .file-tree-icon         { color: var(--tokyo-night-icon-tsx, #7aa2f7); }
+.file-ext-js .file-tree-icon          { color: var(--tokyo-night-icon-js, #e0af68); }
+.file-ext-jsx .file-tree-icon         { color: var(--tokyo-night-icon-jsx, #e0af68); }
+.file-ext-mjs .file-tree-icon         { color: var(--tokyo-night-icon-mjs, #e0af68); }
+.file-ext-cjs .file-tree-icon         { color: var(--tokyo-night-icon-cjs, #e0af68); }
+.file-ext-py .file-tree-icon          { color: var(--tokyo-night-icon-py, #bb9af7); }
+.file-ext-java .file-tree-icon        { color: var(--tokyo-night-icon-java, #ff9e64); }
+.file-ext-go .file-tree-icon          { color: var(--tokyo-night-icon-go, #ff9e64); }
+.file-ext-rs .file-tree-icon          { color: var(--tokyo-night-icon-rs, #ff9e64); }
+.file-ext-cpp .file-tree-icon         { color: var(--tokyo-night-icon-cpp, #9ece6a); }
+.file-ext-c .file-tree-icon           { color: var(--tokyo-night-icon-c, #9ece6a); }
+.file-ext-h .file-tree-icon           { color: var(--tokyo-night-icon-h, #9ece6a); }
+.file-ext-hpp .file-tree-icon         { color: var(--tokyo-night-icon-hpp, #9ece6a); }
+.file-ext-html .file-tree-icon        { color: var(--tokyo-night-icon-html, #f7768e); }
+.file-ext-htm .file-tree-icon         { color: var(--tokyo-night-icon-htm, #f7768e); }
+.file-ext-css .file-tree-icon         { color: var(--tokyo-night-icon-css, #7dcfff); }
+.file-ext-scss .file-tree-icon        { color: var(--tokyo-night-icon-scss, #7dcfff); }
+.file-ext-sass .file-tree-icon        { color: var(--tokyo-night-icon-sass, #7dcfff); }
+.file-ext-less .file-tree-icon        { color: var(--tokyo-night-icon-less, #7dcfff); }
+.file-ext-xml .file-tree-icon         { color: var(--tokyo-night-icon-xml, #e0af68); }
+.file-ext-svg .file-tree-icon         { color: var(--tokyo-night-icon-svg, #bb9af7); }
+.file-ext-yaml .file-tree-icon        { color: var(--tokyo-night-icon-yaml, #73daca); }
+.file-ext-yml .file-tree-icon         { color: var(--tokyo-night-icon-yml, #73daca); }
+.file-ext-toml .file-tree-icon        { color: var(--tokyo-night-icon-toml, #73daca); }
+.file-ext-csv .file-tree-icon         { color: var(--tokyo-night-icon-csv, #9ece6a); }
+.file-ext-_readme .file-tree-icon     { color: var(--tokyo-night-icon-_readme, #7aa2f7); }
+.file-ext-_package .file-tree-icon    { color: var(--tokyo-night-icon-_package, #f7768e); }
+.file-ext-_gitignore .file-tree-icon  { color: var(--tokyo-night-icon-_gitignore, #787c99); }
+.file-ext-_license .file-tree-icon    { color: var(--tokyo-night-icon-_license, #787c99); }
