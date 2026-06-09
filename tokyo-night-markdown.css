@@ -8,6 +8,22 @@
  * Typography scale: modular 1.25 anchored at body = 1rem.
  */
 
+/* ---------- Layout ------------------------------------------------------ */
+/*
+ * Constrain the editor content area to a doc-style reading column.
+ * Scopes to `.nimbalyst-editor .editor-shell`, which only mounts for
+ * markdown (.md) and plain-text (.txt) files. Other file types use
+ * different editors (Monaco for code, RevoGrid for CSV, Excalidraw for
+ * diagrams) that mount as siblings and are unaffected.
+ */
+
+.nimbalyst-editor .editor-shell {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 2rem;
+}
+
 /* ---------- Headings ---------------------------------------------------- */
 /*
  * Tighter line-height than body so two-line headings stay coherent.
@@ -17,7 +33,7 @@
 
 .nim-h1 {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.2;
   color: var(--nim-text);
   margin: 2.25rem 0 1rem;
@@ -84,7 +100,7 @@
 
 .nim-paragraph {
   line-height: 1.65;
-  margin: 0 0 0.75rem;
+  margin: 0 0 1rem;
 }
 
 /* ---------- Code -------------------------------------------------------- */
@@ -209,6 +225,23 @@ ul[class*="nim-"] li {
 [class^="nim-ul"] [class^="nim-ol"],
 [class^="nim-ul"] [class^="nim-ul"] {
   margin: 0.25rem 0;
+}
+
+/*
+ * Unordered-list tightening (unordered only — ordered lists keep prose spacing):
+ * lower line-height for denser items, switch to outside marker positioning
+ * so the bullet-to-text gap is governed by the gutter (smaller padding = tighter
+ * gap), and trim per-item bottom margin.
+ */
+.nim-ul {
+  line-height: 1.45;
+  list-style-position: outside;
+  padding-left: 1.25rem;
+}
+
+.nim-ul .nim-list-item,
+.nim-ul li {
+  margin-bottom: 0.125rem;
 }
 
 /* ---------- Tables ------------------------------------------------------ */
