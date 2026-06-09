@@ -18,10 +18,22 @@
  */
 
 .nimbalyst-editor .editor-shell {
-  max-width: 720px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   padding: 0 2rem;
+}
+
+/*
+ * Breathing room at the top of every document. Applied to .editor (the
+ * contenteditable area, inside .editor-scroller) so document headers and
+ * the toolbar — which sit at sibling/ancestor levels — are unaffected.
+ * Composes with the .nim-h1:first-child { margin-top: 0 } rule below:
+ * the heading nestles cleanly against the 80px padding rather than
+ * stacking on top of its own natural margin-top.
+ */
+.nimbalyst-editor .editor {
+  padding-top: 80px;
 }
 
 /* ---------- Headings ---------------------------------------------------- */
@@ -42,7 +54,7 @@
 
 .nim-h2 {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
   color: var(--nim-text);
   margin: 2rem 0 0.75rem;

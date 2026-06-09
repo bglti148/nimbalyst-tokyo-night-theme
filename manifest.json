@@ -1,7 +1,7 @@
 {
   "id": "com.bglti148.tokyo-night",
   "name": "Tokyo Night",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Tokyo Night theme pack for Nimbalyst — a clean dark theme inspired by the lights of Downtown Tokyo at night. Includes Night and Storm variants ported from the original Visual Studio Code theme, a markdown-editor readability layer, and two editor-light variants that keep the UI dark while lightening only the markdown editor pane.",
   "apiVersion": "1.0",
   "styles": "tokyo-night-markdown.css",
