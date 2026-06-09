@@ -220,7 +220,7 @@
 ol[class*="nim-"],
 ul[class*="nim-"] {
   padding-left: 1.5rem;
-  line-height: 1.65;
+  line-height: 1.4;
   margin: 0.5rem 0;
 }
 
@@ -228,7 +228,7 @@ ul[class*="nim-"] {
 [class^="nim-ul"] li,
 ol[class*="nim-"] li,
 ul[class*="nim-"] li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.375rem;
 }
 
 /* Tighter spacing for nested lists */
@@ -240,20 +240,14 @@ ul[class*="nim-"] li {
 }
 
 /*
- * Unordered-list tightening (unordered only — ordered lists keep prose spacing):
- * lower line-height for denser items, switch to outside marker positioning
- * so the bullet-to-text gap is governed by the gutter (smaller padding = tighter
- * gap), and trim per-item bottom margin.
+ * Unordered-list marker positioning: switch to outside positioning so the
+ * bullet-to-text gap is governed by the gutter (smaller padding = tighter
+ * gap). Line-height and per-item margin are handled by the combined ol/ul
+ * rule above so both list types stay visually unified.
  */
 .nim-ul {
-  line-height: 1.45;
   list-style-position: outside;
   padding-left: 1.25rem;
-}
-
-.nim-ul .nim-list-item,
-.nim-ul li {
-  margin-bottom: 0.125rem;
 }
 
 /* ---------- Tables ------------------------------------------------------ */
