@@ -48,7 +48,7 @@
   font-weight: 800;
   line-height: 1.2;
   color: var(--nim-text);
-  margin: 2.25rem 0 1rem;
+  margin: 0 0 1rem;
   letter-spacing: -0.01em;
 }
 
@@ -57,7 +57,7 @@
   font-weight: 700;
   line-height: 1.25;
   color: var(--nim-text);
-  margin: 2rem 0 0.75rem;
+  margin: 0 0 0.75rem;
   letter-spacing: -0.005em;
   padding-bottom: 0.25rem;
   border-bottom: 1px solid var(--nim-border);
@@ -98,11 +98,9 @@
 }
 
 /*
- * First heading in the document shouldn't push down — useful when an H1
- * is the document title.
+ * First H3 in the document shouldn't push down. H1 and H2 already have
+ * margin-top: 0 unconditionally, so they don't need this rule.
  */
-.nim-h1:first-child,
-.nim-h2:first-child,
 .nim-h3:first-child {
   margin-top: 0;
 }
@@ -263,14 +261,14 @@ ul[class*="nim-"] li {
   line-height: 1.5;
 }
 
+.nim-table-cell {
+  background-color: var(--nim-table-cell);
+}
+
 .nim-table-cell-header {
   background-color: var(--nim-table-header);
   font-weight: 600;
   color: var(--nim-text);
-}
-
-.nim-table tr:nth-child(even) .nim-table-cell {
-  background-color: var(--nim-table-stripe);
 }
 
 /* ---------- Editor-light variant override -------------------------------- */
@@ -328,14 +326,30 @@ html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimb
   --nim-code-variable: #40434f;
   --nim-code-function: #8c4351;
 
-  /* Tables */
+  /* Tables — body cells white for "paper above the page" pop */
   --nim-table-border: #c4c8da;
   --nim-table-header: #e1e2e8;
-  --nim-table-cell: #e6e7ed;
-  --nim-table-stripe: #dcdee5;
+  --nim-table-cell: #ffffff;
+  --nim-table-stripe: #ffffff;
 
   /* Scrollbar */
   --nim-scrollbar-thumb: #c4c8da;
   --nim-scrollbar-thumb-hover: #a0a4b8;
   --nim-scrollbar-track: #e6e7ed;
+}
+
+/*
+ * Revert Nimbalyst's dark-theme icon inversion inside the editor-light
+ * variants. Nimbalyst sets `filter: invert(1)` on icons under
+ * `.nimbalyst-editor.dark-theme` (true for our themes since `isDark: true`),
+ * which turns its dark SVG icon assets into light icons. But our editor
+ * surface is light, so the inverted (light) icons become invisible against
+ * the light toolbar/popup background. Restoring `filter: none` brings back
+ * the original dark icons so they read clearly on the light surface.
+ */
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor.dark-theme i,
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor.dark-theme i,
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-editor-light"] .nimbalyst-editor.dark-theme .icon,
+html[data-theme="com.bglti148.tokyo-night:tokyo-night-storm-editor-light"] .nimbalyst-editor.dark-theme .icon {
+  filter: none;
 }
