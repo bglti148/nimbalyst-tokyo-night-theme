@@ -100,8 +100,8 @@ export const FONT_WEIGHT_OPTIONS: FontWeight[] = [400, 500, 600, 700, 800, 900];
 
 /**
  * Storm tone CSS variable overrides applied to <html> when the toggle is on.
- * These mirror the deltas between the v1.2.x `tokyo-night` and
- * `tokyo-night-storm` theme entries.
+ * These mirror the deltas between the `tokyo-night` and `tokyo-night-storm`
+ * theme entries.
  */
 export const STORM_TONE_OVERRIDES: Record<string, string> = {
   '--nim-bg': '#24283b',
@@ -121,6 +121,32 @@ export const STORM_TONE_OVERRIDES: Record<string, string> = {
   '--nim-toolbar-active': '#363c54',
   '--nim-terminal-bg': '#1f2335',
   '--nim-terminal-cursor-accent': '#24283b',
+};
+
+/**
+ * Canonical Tokyo Night dark values for the same keys Storm overrides.
+ * Written back to <html> when the Storm toggle is turned OFF — otherwise
+ * `removeProperty` would leave those variables undefined and the page
+ * would fall through to no-background (visually: white).
+ */
+export const TOKYO_NIGHT_DARK_OVERRIDES: Record<string, string> = {
+  '--nim-bg': '#1a1b26',
+  '--nim-bg-secondary': '#16161e',
+  '--nim-bg-tertiary': '#13131a',
+  '--nim-bg-hover': '#202330',
+  '--nim-bg-active': '#2a2e42',
+  '--nim-text-muted': '#787c99',
+  '--nim-code-bg': '#16161e',
+  '--nim-code-gutter': '#13131a',
+  '--nim-scrollbar-track': '#16161e',
+  '--nim-table-header': '#16161e',
+  '--nim-table-cell': '#1a1b26',
+  '--nim-table-stripe': '#13131a',
+  '--nim-toolbar-bg': '#16161e',
+  '--nim-toolbar-hover': '#202330',
+  '--nim-toolbar-active': '#2a2e42',
+  '--nim-terminal-bg': '#16161e',
+  '--nim-terminal-cursor-accent': '#1a1b26',
 };
 
 /**

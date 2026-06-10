@@ -2,29 +2,43 @@
  * CSS variable runtime layer.
  *
  * Reads settings from storage (or accepts them directly) and writes them
- * to CSS custom properties on the document, so changes take effect
+ * to CSS custom properties and DOM attributes, so changes take effect
  * immediately without rebuilding the stylesheet.
  *
- * Variable namespace: `--tokyo-night-*` for our own settings.
- * Nimbalyst's chrome variables (`--nim-bg`, etc.) are only touched by
- * Storm tone since chrome reads those directly from inline styles on <html>.
+ * Two scoping mechanisms are used:
+ *  - `--tokyo-night-*` and `--nim-*` CSS variables on <html> via
+ *    `documentElement.style.setProperty()`. CSS rules read these via
+ *    `var(--name, default)`.
+ *  - DOM attributes on the .nimbalyst-editor wrapper (for editor-light
+ *    mode) and .file-tree-file rows (for per-file-type icon colors).
+ *    Attributes are used instead of classes because React replaces the
+ *    `className` string on every re-render, which would strip any class
+ *    we added. Attributes survive className updates.
  */
 
 import type { ExtensionStorage } from '@nimbalyst/runtime';
 import {
   DEFAULT_SETTINGS,
   STORM_TONE_OVERRIDES,
+  TOKYO_NIGHT_DARK_OVERRIDES,
   type TokyoNightSettings,
 } from './defaults';
 
 const ROOT = () => document.documentElement;
 const STORM_MARKER_CLASS = 'tn-storm-active';
-const EDITOR_LIGHT_CLASS = 'tn-editor-light';
+
+/** Attribute placed on .nimbalyst-editor elements to opt them into the
+ *  editor-light CSS scoping block. */
+export const EDITOR_LIGHT_ELEMENT_ATTR = 'data-tn-editor-light';
+
+/** Attribute placed on <html> to track whether editor-light is globally
+ *  active. Used by the theme observer to re-apply the element attribute
+ *  to newly mounted .nimbalyst-editor containers. */
+const EDITOR_LIGHT_STATE_ATTR = 'data-tn-light-editor-active';
 
 /**
  * Map a setting key to the CSS variable name it controls (on :root).
- * Returns null for keys that don't drive a single root variable
- * (e.g., editorLight is a class toggle; stormTone is a multi-variable bulk).
+ * Returns null for keys that don't drive a single root variable.
  */
 function rootVarFor(key: keyof TokyoNightSettings): string | null {
   switch (key) {
@@ -43,19 +57,14 @@ function rootVarFor(key: keyof TokyoNightSettings): string | null {
   }
 }
 
-/**
- * Format a numeric setting value with the appropriate unit for its CSS
- * variable (px for dimensions, unitless for weights).
- */
 function formatValue(key: keyof TokyoNightSettings, value: unknown): string {
   if (key === 'maxWidth' || key === 'topPadding') return `${value}px`;
   return String(value);
 }
 
 /**
- * Apply a single setting to its CSS variable.
- * No-op for keys that aren't variable-driven (editorLight, stormTone,
- * iconColors — those have their own setters).
+ * Apply a single setting to its CSS variable. No-op for keys that aren't
+ * variable-driven (editorLight, stormTone, iconColors have their own setters).
  */
 export function applySettingToCSS(
   key: keyof TokyoNightSettings,
@@ -63,7 +72,10 @@ export function applySettingToCSS(
 ): void {
   const varName = rootVarFor(key);
   if (varName === null) return;
-  ROOT().style.setProperty(varName, formatValue(key, value));
+  const formatted = formatValue(key, value);
+  ROOT().style.setProperty(varName, formatted);
+  // eslint-disable-next-line no-console
+  console.log(`[TokyoNight] CSS var set: ${varName} = ${formatted}`);
 }
 
 /**
@@ -75,50 +87,72 @@ export function applyIconColor(extensionKey: string, color: string): void {
 }
 
 /**
- * Toggle the editor-light visual mode. Adds/removes `tn-editor-light` on
- * the .nimbalyst-editor container; CSS handles the rest via class scoping.
- * The class is added to all current .nimbalyst-editor elements and we
- * also toggle a marker class on <html> so newly mounted editors pick up
- * the state.
+ * Toggle the editor-light visual mode by setting/removing the
+ * `data-tn-editor-light` attribute on every `.nimbalyst-editor` element.
+ * Also sets a state attribute on <html> so the theme observer can
+ * re-apply when new editors mount or theme changes.
+ *
+ * Using an attribute instead of a class is deliberate: React owns the
+ * className prop on `.nimbalyst-editor` and replaces it wholesale on
+ * every re-render. A class we added would be stripped. An attribute
+ * survives.
  */
 export function setEditorLightActive(active: boolean): void {
-  // Toggle on existing editor containers
-  document.querySelectorAll('.nimbalyst-editor').forEach((el) => {
-    el.classList.toggle(EDITOR_LIGHT_CLASS, active);
+  const editors = document.querySelectorAll('.nimbalyst-editor');
+  // eslint-disable-next-line no-console
+  console.log(
+    `[TokyoNight] setEditorLightActive(${active}) — found ${editors.length} .nimbalyst-editor element(s)`
+  );
+
+  editors.forEach((el) => {
+    if (active) el.setAttribute(EDITOR_LIGHT_ELEMENT_ATTR, '');
+    else el.removeAttribute(EDITOR_LIGHT_ELEMENT_ATTR);
   });
-  // Track state on <html> so a MutationObserver can re-apply to new editors
+
   if (active) {
-    ROOT().setAttribute('data-tn-editor-light', '1');
+    ROOT().setAttribute(EDITOR_LIGHT_STATE_ATTR, '1');
   } else {
-    ROOT().removeAttribute('data-tn-editor-light');
+    ROOT().removeAttribute(EDITOR_LIGHT_STATE_ATTR);
   }
+
+  if (editors.length === 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[TokyoNight] No .nimbalyst-editor elements found. ` +
+        `Open a markdown file to verify the selector still matches your Nimbalyst version. ` +
+        `Inspect a markdown editor in DevTools to confirm the outermost wrapper has class 'nimbalyst-editor'.`
+    );
+  }
+}
+
+/** Returns true if editor-light is globally active. */
+export function isEditorLightActive(): boolean {
+  return ROOT().hasAttribute(EDITOR_LIGHT_STATE_ATTR);
 }
 
 /**
  * Toggle the Storm tone chrome palette. Writes inline styles on <html>
- * for each chrome variable, since chrome reads those from <html>'s inline
- * style declarations (set by Nimbalyst's useTheme.ts). A marker class
- * `tn-storm-active` indicates we own these overrides — used by the theme
- * observer to know whether to re-apply after Nimbalyst overwrites.
+ * for each chrome variable. When deactivating, writes back the canonical
+ * Tokyo Night dark values instead of `removeProperty` — otherwise the
+ * variables would be left undefined and the page would render with no
+ * background (browser default = white).
  */
 export function setStormToneActive(active: boolean): void {
   const root = ROOT();
+  const targetValues = active ? STORM_TONE_OVERRIDES : TOKYO_NIGHT_DARK_OVERRIDES;
+  for (const [varName, value] of Object.entries(targetValues)) {
+    root.style.setProperty(varName, value);
+  }
   if (active) {
-    for (const [varName, value] of Object.entries(STORM_TONE_OVERRIDES)) {
-      root.style.setProperty(varName, value);
-    }
     root.classList.add(STORM_MARKER_CLASS);
   } else {
-    for (const varName of Object.keys(STORM_TONE_OVERRIDES)) {
-      root.style.removeProperty(varName);
-    }
     root.classList.remove(STORM_MARKER_CLASS);
   }
+  // eslint-disable-next-line no-console
+  console.log(`[TokyoNight] setStormToneActive(${active})`);
 }
 
-/**
- * Returns true if our Storm tone overrides are currently active.
- */
+/** Returns true if our Storm tone overrides are currently active. */
 export function isStormToneActive(): boolean {
   return ROOT().classList.contains(STORM_MARKER_CLASS);
 }
@@ -138,24 +172,23 @@ export function reapplyStormToneIfActive(): void {
 
 /**
  * Bulk-apply all settings from storage to the document. Used on activate()
- * for startup initialization. Reads each setting, falling back to defaults.
+ * for startup initialization.
  */
 export async function applyAllSettings(storage: ExtensionStorage): Promise<void> {
   const settings = await readAllSettings(storage);
+  // eslint-disable-next-line no-console
+  console.log('[TokyoNight] Applying all settings from storage:', settings);
 
-  // Numerics → :root CSS vars
   applySettingToCSS('maxWidth', settings.maxWidth);
   applySettingToCSS('topPadding', settings.topPadding);
   applySettingToCSS('h1Weight', settings.h1Weight);
   applySettingToCSS('h2Weight', settings.h2Weight);
   applySettingToCSS('h3Weight', settings.h3Weight);
 
-  // File icon colors → individual :root CSS vars
   for (const [ext, color] of Object.entries(settings.iconColors)) {
     applyIconColor(ext, color);
   }
 
-  // Class-based toggles
   setEditorLightActive(settings.editorLight);
   setStormToneActive(settings.stormTone);
 }
@@ -167,9 +200,11 @@ export async function applyAllSettings(storage: ExtensionStorage): Promise<void>
 export async function readAllSettings(
   storage: ExtensionStorage
 ): Promise<TokyoNightSettings> {
-  const settings: TokyoNightSettings = { ...DEFAULT_SETTINGS, iconColors: { ...DEFAULT_SETTINGS.iconColors } };
+  const settings: TokyoNightSettings = {
+    ...DEFAULT_SETTINGS,
+    iconColors: { ...DEFAULT_SETTINGS.iconColors },
+  };
 
-  // Read each setting; storage.get() returns the value or null/undefined
   const editorLight = await storage.get('editorLight');
   if (typeof editorLight === 'boolean') settings.editorLight = editorLight;
 
@@ -193,7 +228,10 @@ export async function readAllSettings(
 
   const iconColors = await storage.get('iconColors');
   if (iconColors && typeof iconColors === 'object') {
-    settings.iconColors = { ...settings.iconColors, ...(iconColors as Record<string, string>) };
+    settings.iconColors = {
+      ...settings.iconColors,
+      ...(iconColors as Record<string, string>),
+    };
   }
 
   return settings;
@@ -204,10 +242,17 @@ export async function readAllSettings(
  * default CSS variables.
  */
 export async function resetAllSettings(storage: ExtensionStorage): Promise<void> {
-  const keys = ['editorLight', 'stormTone', 'maxWidth', 'topPadding', 'h1Weight', 'h2Weight', 'h3Weight', 'iconColors'];
+  const keys = [
+    'editorLight',
+    'stormTone',
+    'maxWidth',
+    'topPadding',
+    'h1Weight',
+    'h2Weight',
+    'h3Weight',
+    'iconColors',
+  ];
   for (const key of keys) {
-    // Set to undefined (or default) — storage interface may or may not support delete.
-    // Setting to the default value is portable.
     await storage.set(key, (DEFAULT_SETTINGS as unknown as Record<string, unknown>)[key]);
   }
   await applyAllSettings(storage);

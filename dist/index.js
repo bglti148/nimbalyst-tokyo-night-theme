@@ -1,6 +1,6 @@
-import { jsx as r, jsxs as d, Fragment as N } from "react/jsx-runtime";
-import { useState as b, useEffect as j } from "react";
-const u = {
+import { jsx as r, jsxs as d, Fragment as I } from "react/jsx-runtime";
+import { useState as x, useEffect as j } from "react";
+const b = {
   editorLight: !1,
   stormTone: !1,
   maxWidth: 800,
@@ -44,7 +44,7 @@ const u = {
     _gitignore: "#787c99",
     _license: "#787c99"
   }
-}, O = [
+}, D = [
   "#7aa2f7",
   // blue (TypeScript brand)
   "#bb9af7",
@@ -69,7 +69,7 @@ const u = {
   // muted gray
   "#a9b1d6"
   // light blue-gray
-], R = [400, 500, 600, 700, 800, 900], k = {
+], P = [400, 500, 600, 700, 800, 900], _ = {
   "--nim-bg": "#24283b",
   "--nim-bg-secondary": "#1f2335",
   "--nim-bg-tertiary": "#1b1e2e",
@@ -87,8 +87,26 @@ const u = {
   "--nim-toolbar-active": "#363c54",
   "--nim-terminal-bg": "#1f2335",
   "--nim-terminal-cursor-accent": "#24283b"
+}, z = {
+  "--nim-bg": "#1a1b26",
+  "--nim-bg-secondary": "#16161e",
+  "--nim-bg-tertiary": "#13131a",
+  "--nim-bg-hover": "#202330",
+  "--nim-bg-active": "#2a2e42",
+  "--nim-text-muted": "#787c99",
+  "--nim-code-bg": "#16161e",
+  "--nim-code-gutter": "#13131a",
+  "--nim-scrollbar-track": "#16161e",
+  "--nim-table-header": "#16161e",
+  "--nim-table-cell": "#1a1b26",
+  "--nim-table-stripe": "#13131a",
+  "--nim-toolbar-bg": "#16161e",
+  "--nim-toolbar-hover": "#202330",
+  "--nim-toolbar-active": "#2a2e42",
+  "--nim-terminal-bg": "#16161e",
+  "--nim-terminal-cursor-accent": "#1a1b26"
 };
-function I(t) {
+function F(t) {
   const e = t.toLowerCase();
   if (e === "readme.md" || e === "readme.markdown") return "_readme";
   if (e === "package.json") return "_package";
@@ -99,8 +117,8 @@ function I(t) {
   const i = e.slice(o + 1);
   return i.length > 0 ? i : null;
 }
-const f = () => document.documentElement, C = "tn-storm-active", P = "tn-editor-light";
-function z(t) {
+const h = () => document.documentElement, S = "tn-storm-active", u = "data-tn-editor-light", C = "data-tn-light-editor-active";
+function M(t) {
   switch (t) {
     case "maxWidth":
       return "--tokyo-night-max-width";
@@ -116,50 +134,57 @@ function z(t) {
       return null;
   }
 }
-function F(t, e) {
+function H(t, e) {
   return t === "maxWidth" || t === "topPadding" ? `${e}px` : String(e);
 }
-function h(t, e) {
-  const o = z(t);
-  o !== null && f().style.setProperty(o, F(t, e));
+function p(t, e) {
+  const o = M(t);
+  if (o === null) return;
+  const i = H(t, e);
+  h().style.setProperty(o, i), console.log(`[TokyoNight] CSS var set: ${o} = ${i}`);
 }
-function S(t, e) {
-  f().style.setProperty(`--tokyo-night-icon-${t}`, e);
+function A(t, e) {
+  h().style.setProperty(`--tokyo-night-icon-${t}`, e);
 }
-function W(t) {
-  document.querySelectorAll(".nimbalyst-editor").forEach((e) => {
-    e.classList.toggle(P, t);
-  }), t ? f().setAttribute("data-tn-editor-light", "1") : f().removeAttribute("data-tn-editor-light");
+function L(t) {
+  const e = document.querySelectorAll(".nimbalyst-editor");
+  console.log(
+    `[TokyoNight] setEditorLightActive(${t}) — found ${e.length} .nimbalyst-editor element(s)`
+  ), e.forEach((o) => {
+    t ? o.setAttribute(u, "") : o.removeAttribute(u);
+  }), t ? h().setAttribute(C, "1") : h().removeAttribute(C), e.length === 0 && console.warn(
+    "[TokyoNight] No .nimbalyst-editor elements found. Open a markdown file to verify the selector still matches your Nimbalyst version. Inspect a markdown editor in DevTools to confirm the outermost wrapper has class 'nimbalyst-editor'."
+  );
 }
-function A(t) {
-  const e = f();
-  if (t) {
-    for (const [o, i] of Object.entries(k))
-      e.style.setProperty(o, i);
-    e.classList.add(C);
-  } else {
-    for (const o of Object.keys(k))
-      e.style.removeProperty(o);
-    e.classList.remove(C);
-  }
+function E() {
+  return h().hasAttribute(C);
 }
-function D() {
-  return f().classList.contains(C);
+function O(t) {
+  const e = h(), o = t ? _ : z;
+  for (const [i, a] of Object.entries(o))
+    e.style.setProperty(i, a);
+  t ? e.classList.add(S) : e.classList.remove(S), console.log(`[TokyoNight] setStormToneActive(${t})`);
 }
-function M() {
-  if (D())
-    for (const [t, e] of Object.entries(k))
-      f().style.setProperty(t, e);
+function B() {
+  return h().classList.contains(S);
 }
-async function L(t) {
-  const e = await T(t);
-  h("maxWidth", e.maxWidth), h("topPadding", e.topPadding), h("h1Weight", e.h1Weight), h("h2Weight", e.h2Weight), h("h3Weight", e.h3Weight);
+function $() {
+  if (B())
+    for (const [t, e] of Object.entries(_))
+      h().style.setProperty(t, e);
+}
+async function R(t) {
+  const e = await w(t);
+  console.log("[TokyoNight] Applying all settings from storage:", e), p("maxWidth", e.maxWidth), p("topPadding", e.topPadding), p("h1Weight", e.h1Weight), p("h2Weight", e.h2Weight), p("h3Weight", e.h3Weight);
   for (const [o, i] of Object.entries(e.iconColors))
-    S(o, i);
-  W(e.editorLight), A(e.stormTone);
+    A(o, i);
+  L(e.editorLight), O(e.stormTone);
 }
-async function T(t) {
-  const e = { ...u, iconColors: { ...u.iconColors } }, o = await t.get("editorLight");
+async function w(t) {
+  const e = {
+    ...b,
+    iconColors: { ...b.iconColors }
+  }, o = await t.get("editorLight");
   typeof o == "boolean" && (e.editorLight = o);
   const i = await t.get("stormTone");
   typeof i == "boolean" && (e.stormTone = i);
@@ -174,16 +199,28 @@ async function T(t) {
   const n = await t.get("h3Weight");
   typeof n == "number" && (e.h3Weight = n);
   const c = await t.get("iconColors");
-  return c && typeof c == "object" && (e.iconColors = { ...e.iconColors, ...c }), e;
+  return c && typeof c == "object" && (e.iconColors = {
+    ...e.iconColors,
+    ...c
+  }), e;
 }
-async function B(t) {
-  const e = ["editorLight", "stormTone", "maxWidth", "topPadding", "h1Weight", "h2Weight", "h3Weight", "iconColors"];
+async function q(t) {
+  const e = [
+    "editorLight",
+    "stormTone",
+    "maxWidth",
+    "topPadding",
+    "h1Weight",
+    "h2Weight",
+    "h3Weight",
+    "iconColors"
+  ];
   for (const o of e)
-    await t.set(o, u[o]);
-  await L(t);
+    await t.set(o, b[o]);
+  await R(t);
 }
-const _ = "file-ext-";
-function H(t) {
+const v = "data-tn-file-ext";
+function G(t) {
   const o = t.querySelector("[name]")?.getAttribute("name");
   if (o) return o;
   const i = t.textContent?.trim() ?? "";
@@ -191,23 +228,20 @@ function H(t) {
   const a = i.split(/\s+/);
   return a[a.length - 1] || null;
 }
-function $(t) {
-  const e = [];
-  t.classList.forEach((o) => {
-    o.startsWith(_) && e.push(o);
-  }), e.forEach((o) => t.classList.remove(o));
-}
 function y(t) {
-  const e = H(t);
-  if ($(t), !e) return;
-  const o = I(e);
-  o && t.classList.add(`${_}${o}`);
+  const e = G(t);
+  if (!e) {
+    t.removeAttribute(v);
+    return;
+  }
+  const o = F(e);
+  o ? t.setAttribute(v, o) : t.removeAttribute(v);
 }
-function q() {
+function K() {
   document.querySelectorAll(".file-tree-file").forEach(y);
 }
-function G() {
-  q();
+function V() {
+  K(), console.log("[TokyoNight] File tree observer initialized");
   const t = new MutationObserver((e) => {
     for (const o of e) {
       for (const i of Array.from(o.addedNodes))
@@ -228,21 +262,23 @@ function G() {
     dispose: () => t.disconnect()
   };
 }
-function K() {
+function U() {
   const t = document.documentElement, e = new MutationObserver((i) => {
     for (const a of i)
-      a.type === "attributes" && a.attributeName === "data-theme" && (M(), t.hasAttribute("data-tn-editor-light") && W(!0));
+      a.type === "attributes" && a.attributeName === "data-theme" && (console.log("[TokyoNight] data-theme changed — re-applying Storm/light if active"), $(), E() && document.querySelectorAll(".nimbalyst-editor").forEach((s) => {
+        s.setAttribute(u, "");
+      }));
   });
   e.observe(t, {
     attributes: !0,
     attributeFilter: ["data-theme"]
   });
   const o = new MutationObserver((i) => {
-    if (t.hasAttribute("data-tn-editor-light"))
+    if (E())
       for (const a of i)
         for (const s of Array.from(a.addedNodes))
-          s instanceof Element && (s.classList?.contains("nimbalyst-editor") && s.classList.add("tn-editor-light"), s.querySelectorAll?.(".nimbalyst-editor").forEach((m) => {
-            m.classList.add("tn-editor-light");
+          s instanceof Element && (s.classList?.contains("nimbalyst-editor") && s.setAttribute(u, ""), s.querySelectorAll?.(".nimbalyst-editor").forEach((m) => {
+            m.setAttribute(u, "");
           }));
   });
   return o.observe(document.body, {
@@ -254,7 +290,7 @@ function K() {
     }
   };
 }
-const U = [
+const Y = [
   { key: "md", label: ".md", sample: "README.md" },
   { key: "markdown", label: ".markdown", sample: "doc.markdown" },
   { key: "json", label: ".json", sample: "data.json" },
@@ -289,8 +325,8 @@ const U = [
   { key: "_gitignore", label: ".gitignore", sample: ".gitignore" },
   { key: "_license", label: "LICENSE", sample: "LICENSE" }
 ];
-function V({ value: t, onChange: e }) {
-  const [o, i] = b(!1), [a, s] = b(t);
+function X({ value: t, onChange: e }) {
+  const [o, i] = x(!1), [a, s] = x(t);
   j(() => {
     s(t);
   }, [t]);
@@ -317,7 +353,7 @@ function V({ value: t, onChange: e }) {
         title: t
       }
     ),
-    o && /* @__PURE__ */ d(N, { children: [
+    o && /* @__PURE__ */ d(I, { children: [
       /* @__PURE__ */ r(
         "div",
         {
@@ -346,7 +382,7 @@ function V({ value: t, onChange: e }) {
             minWidth: 200
           },
           children: [
-            /* @__PURE__ */ r("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6 }, children: O.map((l) => /* @__PURE__ */ r(
+            /* @__PURE__ */ r("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6 }, children: D.map((l) => /* @__PURE__ */ r(
               "button",
               {
                 type: "button",
@@ -413,7 +449,7 @@ function V({ value: t, onChange: e }) {
     ] })
   ] });
 }
-function w({ label: t, value: e, min: o, max: i, step: a, unit: s, onChange: m }) {
+function W({ label: t, value: e, min: o, max: i, step: a, unit: s, onChange: m }) {
   return /* @__PURE__ */ d("div", { style: { marginBottom: 12 }, children: [
     /* @__PURE__ */ d("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }, children: [
       /* @__PURE__ */ r("label", { style: { fontSize: 13, color: "var(--nim-text)" }, children: t }),
@@ -436,7 +472,7 @@ function w({ label: t, value: e, min: o, max: i, step: a, unit: s, onChange: m }
     )
   ] });
 }
-function E({ label: t, description: e, checked: o, onChange: i }) {
+function N({ label: t, description: e, checked: o, onChange: i }) {
   return /* @__PURE__ */ d("label", { style: {
     display: "flex",
     alignItems: "flex-start",
@@ -459,7 +495,7 @@ function E({ label: t, description: e, checked: o, onChange: i }) {
     ] })
   ] });
 }
-function x({ title: t, children: e }) {
+function k({ title: t, children: e }) {
   return /* @__PURE__ */ d("section", { style: { marginBottom: 28 }, children: [
     /* @__PURE__ */ r("h3", { style: {
       fontSize: 14,
@@ -473,13 +509,13 @@ function x({ title: t, children: e }) {
     e
   ] });
 }
-function X({ storage: t }) {
-  const [e, o] = b(u), [i, a] = b(!0);
+function J({ storage: t }) {
+  const [e, o] = x(b), [i, a] = x(!0);
   j(() => {
     let n = !1;
     return (async () => {
       try {
-        const c = await T(t);
+        const c = await w(t);
         n || o(c);
       } catch (c) {
         console.error("[TokyoNight] Failed to load settings:", c);
@@ -491,30 +527,30 @@ function X({ storage: t }) {
     };
   }, [t]);
   const s = async (n, c) => {
-    if (o((p) => ({ ...p, [n]: c })), await t.set(n, c), n === "editorLight")
-      W(c);
+    if (o((g) => ({ ...g, [n]: c })), await t.set(n, c), n === "editorLight")
+      L(c);
     else if (n === "stormTone")
-      A(c);
+      O(c);
     else if (n === "iconColors")
-      for (const [p, g] of Object.entries(c))
-        S(p, g);
+      for (const [g, f] of Object.entries(c))
+        A(g, f);
     else
-      h(n, c);
+      p(n, c);
   }, m = async (n, c) => {
-    const p = { ...e.iconColors, [n]: c };
-    o((g) => ({ ...g, iconColors: p })), await t.set("iconColors", p), S(n, c);
+    const g = { ...e.iconColors, [n]: c };
+    o((f) => ({ ...f, iconColors: g })), await t.set("iconColors", g), A(n, c);
   }, l = async () => {
     if (!confirm("Reset all Tokyo Night settings to defaults?")) return;
-    await B(t);
-    const n = await T(t);
+    await q(t);
+    const n = await w(t);
     o(n);
   };
   return i ? /* @__PURE__ */ r("div", { style: { padding: 20, color: "var(--nim-text-muted)" }, children: "Loading settings…" }) : /* @__PURE__ */ d("div", { style: { padding: 20, maxWidth: 720, color: "var(--nim-text)" }, children: [
     /* @__PURE__ */ r("h2", { style: { fontSize: 18, fontWeight: 600, marginTop: 0, marginBottom: 6 }, children: "Tokyo Night" }),
     /* @__PURE__ */ r("p", { style: { fontSize: 13, color: "var(--nim-text-muted)", marginTop: 0, marginBottom: 24 }, children: "Configure the theme's appearance, markdown editor typography, and file icon colors. Changes apply immediately." }),
-    /* @__PURE__ */ d(x, { title: "Appearance", children: [
+    /* @__PURE__ */ d(k, { title: "Appearance", children: [
       /* @__PURE__ */ r(
-        E,
+        N,
         {
           label: "Light editor for markdown files",
           description: "Keep the UI chrome dark, but render the markdown editor pane with a light background.",
@@ -523,7 +559,7 @@ function X({ storage: t }) {
         }
       ),
       /* @__PURE__ */ r(
-        E,
+        N,
         {
           label: "Use Storm tone (lighter dark background)",
           description: "Shift the chrome from canonical Tokyo Night to the Storm palette — a slightly lighter dark.",
@@ -532,9 +568,9 @@ function X({ storage: t }) {
         }
       )
     ] }),
-    /* @__PURE__ */ d(x, { title: "Markdown editor", children: [
+    /* @__PURE__ */ d(k, { title: "Markdown editor", children: [
       /* @__PURE__ */ r(
-        w,
+        W,
         {
           label: "Editor max-width",
           value: e.maxWidth,
@@ -546,7 +582,7 @@ function X({ storage: t }) {
         }
       ),
       /* @__PURE__ */ r(
-        w,
+        W,
         {
           label: "Doc top padding",
           value: e.topPadding,
@@ -558,7 +594,7 @@ function X({ storage: t }) {
         }
       ),
       /* @__PURE__ */ r(
-        v,
+        T,
         {
           label: "H1 weight",
           value: e.h1Weight,
@@ -566,7 +602,7 @@ function X({ storage: t }) {
         }
       ),
       /* @__PURE__ */ r(
-        v,
+        T,
         {
           label: "H2 weight",
           value: e.h2Weight,
@@ -574,7 +610,7 @@ function X({ storage: t }) {
         }
       ),
       /* @__PURE__ */ r(
-        v,
+        T,
         {
           label: "H3 weight",
           value: e.h3Weight,
@@ -582,25 +618,25 @@ function X({ storage: t }) {
         }
       )
     ] }),
-    /* @__PURE__ */ d(x, { title: "File icon colors", children: [
+    /* @__PURE__ */ d(k, { title: "File icon colors", children: [
       /* @__PURE__ */ r("p", { style: { fontSize: 12, color: "var(--nim-text-muted)", marginTop: 0, marginBottom: 12 }, children: "Click a color swatch to change. Custom hex supported." }),
       /* @__PURE__ */ r("div", { style: {
         maxHeight: 360,
         overflowY: "auto",
         border: "1px solid var(--nim-border)",
         borderRadius: 6
-      }, children: /* @__PURE__ */ r("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 }, children: /* @__PURE__ */ r("tbody", { children: U.map((n, c) => {
-        const p = e.iconColors[n.key] || u.iconColors[n.key] || "var(--nim-text-muted)";
+      }, children: /* @__PURE__ */ r("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: 13 }, children: /* @__PURE__ */ r("tbody", { children: Y.map((n, c) => {
+        const g = e.iconColors[n.key] || b.iconColors[n.key] || "var(--nim-text-muted)";
         return /* @__PURE__ */ d("tr", { style: {
           borderTop: c === 0 ? "none" : "1px solid var(--nim-border)"
         }, children: [
           /* @__PURE__ */ r("td", { style: { padding: "6px 12px", fontFamily: "monospace", color: "var(--nim-text-muted)", width: 140 }, children: n.label }),
-          /* @__PURE__ */ r("td", { style: { padding: "6px 12px", color: p, fontFamily: "monospace", fontSize: 12 }, children: n.sample }),
+          /* @__PURE__ */ r("td", { style: { padding: "6px 12px", color: g, fontFamily: "monospace", fontSize: 12 }, children: n.sample }),
           /* @__PURE__ */ r("td", { style: { padding: "6px 12px", textAlign: "right", width: 60 }, children: /* @__PURE__ */ r(
-            V,
+            X,
             {
-              value: p,
-              onChange: (g) => m(n.key, g)
+              value: g,
+              onChange: (f) => m(n.key, f)
             }
           ) })
         ] }, n.key);
@@ -625,7 +661,7 @@ function X({ storage: t }) {
     ) })
   ] });
 }
-function v({ label: t, value: e, onChange: o }) {
+function T({ label: t, value: e, onChange: o }) {
   return /* @__PURE__ */ d("div", { style: { marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
     /* @__PURE__ */ r("label", { style: { fontSize: 13, color: "var(--nim-text)" }, children: t }),
     /* @__PURE__ */ r(
@@ -642,28 +678,34 @@ function v({ label: t, value: e, onChange: o }) {
           fontSize: 13,
           minWidth: 80
         },
-        children: R.map((i) => /* @__PURE__ */ r("option", { value: i, children: i }, i))
+        children: P.map((i) => /* @__PURE__ */ r("option", { value: i, children: i }, i))
       }
     )
   ] });
 }
-const ee = {
-  TokyoNightSettingsPanel: X
+const oe = {
+  TokyoNightSettingsPanel: J
 };
-async function te(t) {
-  console.log("[TokyoNight] Extension activated");
-  const e = Y(t);
-  if (e)
+async function ie(t) {
+  console.log("[TokyoNight] Extension activated (v2.0.2)"), console.log("[TokyoNight] context:", t), console.log(
+    "[TokyoNight] DOM check: .nimbalyst-editor count =",
+    document.querySelectorAll(".nimbalyst-editor").length,
+    "| .file-tree-file count =",
+    document.querySelectorAll(".file-tree-file").length
+  );
+  const e = Q(t);
+  if (e) {
+    console.log("[TokyoNight] Storage resolved, applying initial settings");
     try {
-      await L(e);
+      await R(e);
     } catch (a) {
       console.error("[TokyoNight] Failed to apply initial settings:", a);
     }
-  else
+  } else
     console.warn(
       "[TokyoNight] No storage available — CSS defaults will apply, but user settings cannot be persisted or read on startup."
     );
-  const o = G(), i = K();
+  const o = V(), i = U();
   t.subscriptions && t.subscriptions.push(
     { dispose: () => o.dispose() },
     { dispose: () => i.dispose() }
@@ -672,7 +714,7 @@ async function te(t) {
     () => i.dispose()
   ];
 }
-async function oe() {
+async function ne() {
   console.log("[TokyoNight] Extension deactivated");
   const t = globalThis.__tokyoNightDisposers;
   if (Array.isArray(t))
@@ -683,20 +725,20 @@ async function oe() {
         console.error("[TokyoNight] Disposer error:", o);
       }
 }
-function Y(t) {
+function Q(t) {
   if (t.storage) return t.storage;
   const e = t.services;
   if (e && typeof e == "object") {
     const o = e.storage;
-    if (J(o)) return o;
+    if (Z(o)) return o;
   }
   return null;
 }
-function J(t) {
+function Z(t) {
   return typeof t == "object" && t !== null && typeof t.get == "function" && typeof t.set == "function";
 }
 export {
-  te as activate,
-  oe as deactivate,
-  ee as settingsPanel
+  ie as activate,
+  ne as deactivate,
+  oe as settingsPanel
 };

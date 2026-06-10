@@ -40,11 +40,22 @@ export const settingsPanel = {
  */
 export async function activate(context: ExtensionContext): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log('[TokyoNight] Extension activated');
+  console.log('[TokyoNight] Extension activated (v2.0.2)');
+  // eslint-disable-next-line no-console
+  console.log('[TokyoNight] context:', context);
+  // eslint-disable-next-line no-console
+  console.log(
+    '[TokyoNight] DOM check: .nimbalyst-editor count =',
+    document.querySelectorAll('.nimbalyst-editor').length,
+    '| .file-tree-file count =',
+    document.querySelectorAll('.file-tree-file').length
+  );
 
   const storage = resolveStorage(context);
 
   if (storage) {
+    // eslint-disable-next-line no-console
+    console.log('[TokyoNight] Storage resolved, applying initial settings');
     try {
       await applyAllSettings(storage);
     } catch (err) {

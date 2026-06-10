@@ -1,109 +1,86 @@
 /**
  * File tree observer.
  *
- * Watches the DOM for `.file-tree-file` rows and adds a `file-ext-{key}`
- * class to each based on the row's filename. Enables per-file-type icon
- * coloring via CSS rules like:
+ * Watches the DOM for `.file-tree-file` rows and sets a `data-tn-file-ext`
+ * attribute on each based on the row's filename. CSS uses the attribute
+ * selector `[data-tn-file-ext="md"] .file-tree-icon` to color icons
+ * per file type.
  *
- *   .file-ext-md  .file-tree-icon { color: var(--tokyo-night-icon-md); }
- *
- * Cleanup is via the returned dispose() function.
+ * Attribute (not class) because React owns the .file-tree-file element's
+ * className and replaces it wholesale every time the row's selected /
+ * focused state changes — that would strip any class we added. Attributes
+ * are not part of React's className update path, so they survive
+ * re-renders.
  */
 
 import { getExtensionKey } from './defaults';
 
-const FILE_EXT_CLASS_PREFIX = 'file-ext-';
+const FILE_EXT_ATTR = 'data-tn-file-ext';
 
 /**
  * Extract the filename from a .file-tree-file row.
- * Strategy: prefer an explicit attribute if Nimbalyst exposes one; fall
- * back to textContent (file rows are typically only the filename text).
  */
 function extractFilename(row: Element): string | null {
   // Strategy 1: a `name` attribute on a child (FileTreeRow puts node.name
-  // on the file-name span as a non-standard `name` attribute in some
-  // builds — try this first because it's the most stable signal).
+  // as a non-standard `name` attribute on the file-name element).
   const named = row.querySelector('[name]');
   const nameAttr = named?.getAttribute('name');
   if (nameAttr) return nameAttr;
 
-  // Strategy 2: any text content inside the row (file rows are
-  // typically just the icon + filename + optional git status badge).
+  // Strategy 2: textContent — file rows typically contain only the
+  // filename text plus optional git status badges (M/S/?/D).
   const text = row.textContent?.trim() ?? '';
   if (!text) return null;
 
-  // Strip a leading git-status code if present (single letter then space,
-  // e.g., "M index.ts" → "index.ts"). FileTreeRow renders status codes
-  // M/S/?/D inside a child span — they appear concatenated in textContent.
-  // We match the longest reasonable filename token rather than splitting,
-  // which would be fragile.
-  // For now, take the last whitespace-separated token as the most likely
-  // filename — git status badges are at the start, filename at the end.
+  // Status badges appear at the start of textContent; the filename is
+  // usually the last whitespace-separated token.
   const tokens = text.split(/\s+/);
   return tokens[tokens.length - 1] || null;
 }
 
 /**
- * Remove all `file-ext-*` classes from an element. Used before re-applying
- * a new class so renamed files get re-classified correctly.
- */
-function clearExtClasses(row: Element): void {
-  const toRemove: string[] = [];
-  row.classList.forEach((cls) => {
-    if (cls.startsWith(FILE_EXT_CLASS_PREFIX)) toRemove.push(cls);
-  });
-  toRemove.forEach((cls) => row.classList.remove(cls));
-}
-
-/**
  * Classify a single row: extract its filename, derive the extension key,
- * and apply the `file-ext-{key}` class.
+ * and set the `data-tn-file-ext` attribute.
  */
 function classifyRow(row: Element): void {
   const filename = extractFilename(row);
-  clearExtClasses(row);
-  if (!filename) return;
+  if (!filename) {
+    row.removeAttribute(FILE_EXT_ATTR);
+    return;
+  }
 
   const key = getExtensionKey(filename);
-  if (key) row.classList.add(`${FILE_EXT_CLASS_PREFIX}${key}`);
+  if (key) row.setAttribute(FILE_EXT_ATTR, key);
+  else row.removeAttribute(FILE_EXT_ATTR);
 }
 
 /**
- * Classify all .file-tree-file rows currently in the DOM. Called once at
- * startup and after large mutation batches.
+ * Classify all .file-tree-file rows currently in the DOM.
  */
 function classifyAllRows(): void {
   document.querySelectorAll('.file-tree-file').forEach(classifyRow);
 }
 
 /**
- * Set up the file tree observer. Returns a dispose function that
- * disconnects the observer.
+ * Set up the file tree observer. Returns a dispose function.
  */
 export function createFileTreeObserver(): { dispose: () => void } {
-  // Initial classification of any rows already in the DOM
   classifyAllRows();
+  // eslint-disable-next-line no-console
+  console.log('[TokyoNight] File tree observer initialized');
 
-  // Observe the entire document body for added/removed file rows.
-  // Scoping to a more specific container would be more efficient, but the
-  // file tree container's exact class/ID isn't documented and may vary —
-  // observing body with a targeted callback keeps us resilient to changes.
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      // New nodes added: classify any new file rows
       for (const added of Array.from(mutation.addedNodes)) {
         if (!(added instanceof Element)) continue;
 
-        // The added node itself might be a file row
         if (added.classList?.contains('file-tree-file')) {
           classifyRow(added);
         }
-        // Or it might contain file rows (e.g., expanded folder)
         added.querySelectorAll?.('.file-tree-file').forEach(classifyRow);
       }
 
-      // Existing nodes mutated (renames update text content via React).
-      // If the target itself is a file row OR contains file rows, reclassify.
+      // Handle existing rows whose filename text mutated (rename, etc.)
       if (mutation.type === 'characterData' || mutation.type === 'childList') {
         const target = mutation.target instanceof Element
           ? mutation.target

@@ -6,11 +6,15 @@
  * CSS variables on <html> are overwritten — including our Storm tone
  * overrides. This observer detects that and re-applies if needed.
  *
- * Also re-applies the editor-light class to any newly mounted
+ * Also re-applies the editor-light attribute to any newly mounted
  * `.nimbalyst-editor` containers when the toggle is on.
  */
 
-import { reapplyStormToneIfActive, setEditorLightActive } from './cssVariables';
+import {
+  EDITOR_LIGHT_ELEMENT_ATTR,
+  isEditorLightActive,
+  reapplyStormToneIfActive,
+} from './cssVariables';
 
 /**
  * Set up the theme observer. Returns a dispose function.
@@ -26,13 +30,15 @@ export function createThemeObserver(): { dispose: () => void } {
       if (mutation.type !== 'attributes') continue;
       if (mutation.attributeName !== 'data-theme') continue;
 
-      // Re-apply Storm tone overrides (they were just wiped)
+      // eslint-disable-next-line no-console
+      console.log('[TokyoNight] data-theme changed — re-applying Storm/light if active');
+
       reapplyStormToneIfActive();
 
-      // Re-apply editor-light marker check: if our marker is set on <html>,
-      // ensure all .nimbalyst-editor containers have the class.
-      if (root.hasAttribute('data-tn-editor-light')) {
-        setEditorLightActive(true);
+      if (isEditorLightActive()) {
+        document.querySelectorAll('.nimbalyst-editor').forEach((el) => {
+          el.setAttribute(EDITOR_LIGHT_ELEMENT_ATTR, '');
+        });
       }
     }
   });
@@ -42,21 +48,20 @@ export function createThemeObserver(): { dispose: () => void } {
     attributeFilter: ['data-theme'],
   });
 
-  // Also watch for new .nimbalyst-editor containers being mounted, so the
-  // editor-light class can be applied to them if the toggle is on.
-  // (When the user opens a markdown file, a new container is mounted.)
+  // Watch for newly mounted .nimbalyst-editor containers so the
+  // editor-light attribute can be applied when the toggle is on.
   const mountObserver = new MutationObserver((mutations) => {
-    if (!root.hasAttribute('data-tn-editor-light')) return;
+    if (!isEditorLightActive()) return;
 
     for (const mutation of mutations) {
       for (const added of Array.from(mutation.addedNodes)) {
         if (!(added instanceof Element)) continue;
 
         if (added.classList?.contains('nimbalyst-editor')) {
-          added.classList.add('tn-editor-light');
+          added.setAttribute(EDITOR_LIGHT_ELEMENT_ATTR, '');
         }
         added.querySelectorAll?.('.nimbalyst-editor').forEach((el) => {
-          el.classList.add('tn-editor-light');
+          el.setAttribute(EDITOR_LIGHT_ELEMENT_ATTR, '');
         });
       }
     }

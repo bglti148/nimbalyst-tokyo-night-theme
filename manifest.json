@@ -1,7 +1,7 @@
 {
   "id": "com.bglti148.tokyo-night",
   "name": "Tokyo Night",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Tokyo Night theme for Nimbalyst with a configurable settings panel. Light editor and Storm tone are user-toggleable. Per-file-type icon colors, heading weight controls, editor width and top padding all adjustable from Settings → Tokyo Night.",
   "apiVersion": "1.0",
   "main": "dist/index.js",
