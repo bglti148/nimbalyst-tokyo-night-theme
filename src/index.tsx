@@ -40,9 +40,25 @@ export const settingsPanel = {
  */
 export async function activate(context: ExtensionContext): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log('[TokyoNight] Extension activated (v2.0.3)');
+  console.log('[TokyoNight] Extension activated (v2.0.4)');
   // eslint-disable-next-line no-console
   console.log('[TokyoNight] context:', context);
+
+  // Stash context globally for ad-hoc DevTools inspection
+  // (paste `__tnContext` into Console to introspect).
+  (globalThis as unknown as { __tnContext?: unknown }).__tnContext = context;
+
+  // Log keys of services so we can find where storage actually lives.
+  if (context && typeof context === 'object') {
+    const services = (context as unknown as { services?: unknown }).services;
+    if (services && typeof services === 'object') {
+      // eslint-disable-next-line no-console
+      console.log('[TokyoNight] context.services keys:', Object.keys(services));
+      // eslint-disable-next-line no-console
+      console.log('[TokyoNight] context.services full:', services);
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.log(
     '[TokyoNight] DOM check: .nimbalyst-editor count =',
@@ -63,7 +79,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
     }
   } else {
     console.warn(
-      '[TokyoNight] No storage available — CSS defaults will apply, but user settings cannot be persisted or read on startup.'
+      '[TokyoNight] No storage in activate() context. The settings panel will apply settings when it mounts. ' +
+        'Inspect `__tnContext` in DevTools Console to find where storage actually lives, then we can resolve it at activate-time.'
     );
   }
 
@@ -115,11 +132,17 @@ export async function deactivate(): Promise<void> {
 function resolveStorage(context: ExtensionContext): ExtensionStorage | null {
   if (context.storage) return context.storage;
 
-  // Some SDK versions wrap services differently; probe defensively
+  // Probe known/possible paths defensively
   const services = (context as unknown as { services?: Record<string, unknown> }).services;
   if (services && typeof services === 'object') {
-    const storage = (services as Record<string, unknown>).storage;
-    if (isExtensionStorage(storage)) return storage;
+    for (const candidate of [
+      services.storage,
+      services.Storage,
+      services.extensionStorage,
+      services.settings,
+    ]) {
+      if (isExtensionStorage(candidate)) return candidate;
+    }
   }
 
   return null;

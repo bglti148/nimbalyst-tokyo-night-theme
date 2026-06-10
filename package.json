@@ -1,6 +1,6 @@
 {
   "name": "nimbalyst-tokyo-night-theme",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Tokyo Night theme for Nimbalyst with a configurable settings panel, per-file-type icon colors, and a markdown-editor readability layer.",
   "main": "dist/index.js",
   "types": "src/index.tsx",

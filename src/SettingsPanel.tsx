@@ -21,6 +21,7 @@ import {
   type TokyoNightSettings,
 } from './defaults';
 import {
+  applyAllSettings,
   applyIconColor,
   applySettingToCSS,
   readAllSettings,
@@ -29,40 +30,33 @@ import {
   setStormToneActive,
 } from './cssVariables';
 
-const ICON_ROWS: Array<{ key: string; label: string; sample: string }> = [
-  { key: 'md', label: '.md', sample: 'README.md' },
-  { key: 'markdown', label: '.markdown', sample: 'doc.markdown' },
-  { key: 'json', label: '.json', sample: 'data.json' },
-  { key: 'ts', label: '.ts', sample: 'index.ts' },
-  { key: 'tsx', label: '.tsx', sample: 'App.tsx' },
-  { key: 'js', label: '.js', sample: 'index.js' },
-  { key: 'jsx', label: '.jsx', sample: 'App.jsx' },
-  { key: 'mjs', label: '.mjs', sample: 'module.mjs' },
-  { key: 'cjs', label: '.cjs', sample: 'common.cjs' },
-  { key: 'py', label: '.py', sample: 'main.py' },
-  { key: 'java', label: '.java', sample: 'Main.java' },
-  { key: 'go', label: '.go', sample: 'main.go' },
-  { key: 'rs', label: '.rs', sample: 'main.rs' },
-  { key: 'cpp', label: '.cpp', sample: 'main.cpp' },
-  { key: 'c', label: '.c', sample: 'main.c' },
-  { key: 'h', label: '.h', sample: 'header.h' },
-  { key: 'hpp', label: '.hpp', sample: 'header.hpp' },
-  { key: 'html', label: '.html', sample: 'index.html' },
-  { key: 'htm', label: '.htm', sample: 'page.htm' },
-  { key: 'css', label: '.css', sample: 'styles.css' },
-  { key: 'scss', label: '.scss', sample: 'styles.scss' },
-  { key: 'sass', label: '.sass', sample: 'styles.sass' },
-  { key: 'less', label: '.less', sample: 'styles.less' },
-  { key: 'xml', label: '.xml', sample: 'config.xml' },
-  { key: 'svg', label: '.svg', sample: 'icon.svg' },
-  { key: 'yaml', label: '.yaml', sample: 'config.yaml' },
-  { key: 'yml', label: '.yml', sample: 'config.yml' },
-  { key: 'toml', label: '.toml', sample: 'config.toml' },
-  { key: 'csv', label: '.csv', sample: 'data.csv' },
-  { key: '_readme', label: 'README.md', sample: 'README.md' },
-  { key: '_package', label: 'package.json', sample: 'package.json' },
-  { key: '_gitignore', label: '.gitignore', sample: '.gitignore' },
-  { key: '_license', label: 'LICENSE', sample: 'LICENSE' },
+/**
+ * Icon color rows grouped by user mental model. Each row's `keys` array
+ * lists all file extensions that share the color (a single pick updates
+ * every key in the group). Reduces visual noise and prevents the "I
+ * picked .md but it didn't change .markdown" confusion.
+ */
+const ICON_ROWS: Array<{ label: string; keys: string[]; sample: string }> = [
+  { label: 'Markdown (.md, .markdown)', keys: ['md', 'markdown'], sample: 'README.md' },
+  { label: 'JSON (.json)', keys: ['json'], sample: 'data.json' },
+  { label: 'TypeScript (.ts, .tsx)', keys: ['ts', 'tsx'], sample: 'index.ts' },
+  { label: 'JavaScript (.js, .jsx, .mjs, .cjs)', keys: ['js', 'jsx', 'mjs', 'cjs'], sample: 'index.js' },
+  { label: 'Python (.py)', keys: ['py'], sample: 'main.py' },
+  { label: 'Java (.java)', keys: ['java'], sample: 'Main.java' },
+  { label: 'Go (.go)', keys: ['go'], sample: 'main.go' },
+  { label: 'Rust (.rs)', keys: ['rs'], sample: 'main.rs' },
+  { label: 'C / C++ (.c, .cpp, .h, .hpp)', keys: ['c', 'cpp', 'h', 'hpp'], sample: 'main.c' },
+  { label: 'HTML (.html, .htm)', keys: ['html', 'htm'], sample: 'index.html' },
+  { label: 'CSS family (.css, .scss, .sass, .less)', keys: ['css', 'scss', 'sass', 'less'], sample: 'styles.css' },
+  { label: 'XML (.xml)', keys: ['xml'], sample: 'config.xml' },
+  { label: 'SVG (.svg)', keys: ['svg'], sample: 'icon.svg' },
+  { label: 'YAML (.yaml, .yml)', keys: ['yaml', 'yml'], sample: 'config.yaml' },
+  { label: 'TOML (.toml)', keys: ['toml'], sample: 'config.toml' },
+  { label: 'CSV (.csv)', keys: ['csv'], sample: 'data.csv' },
+  { label: 'README files', keys: ['_readme'], sample: 'README.md' },
+  { label: 'package.json', keys: ['_package'], sample: 'package.json' },
+  { label: '.gitignore', keys: ['_gitignore'], sample: '.gitignore' },
+  { label: 'LICENSE', keys: ['_license'], sample: 'LICENSE' },
 ];
 
 interface ColorPickerProps {
@@ -296,7 +290,12 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
   const [settings, setSettings] = useState<TokyoNightSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
 
-  // Load settings on mount
+  // Load settings on mount AND apply all CSS variables. This serves as a
+  // fallback when activate() couldn't resolve storage on app startup — the
+  // settings panel becomes the storage owner and is responsible for
+  // syncing CSS with stored values. Means: settings only take effect
+  // after the user opens the panel once after restart, but they DO take
+  // effect, which is better than the defaults-only alternative.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -305,6 +304,8 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
         if (!cancelled) {
           setSettings(loaded);
         }
+        // Apply CSS from storage so settings are visible immediately
+        await applyAllSettings(storage);
       } catch (err) {
         console.error('[TokyoNight] Failed to load settings:', err);
       } finally {
@@ -339,16 +340,26 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
     }
   };
 
-  // Per-extension icon color update.
-  // Apply CSS variable BEFORE awaiting storage so the visual change is
-  // independent of storage success — if storage.set hangs or throws, the
-  // user still sees the color update.
-  const updateIconColor = async (extKey: string, color: string) => {
-    const next = { ...settings.iconColors, [extKey]: color };
+  /**
+   * Icon color update for a group of extensions (e.g. ['md', 'markdown']
+   * for the Markdown row). Writes the same color to every extension key
+   * in the group so users don't have to pick the same color for related
+   * file types.
+   *
+   * Applies CSS BEFORE awaiting storage so visual change is independent
+   * of storage success.
+   */
+  const updateIconColors = async (extKeys: string[], color: string) => {
+    const next = { ...settings.iconColors };
+    for (const key of extKeys) {
+      next[key] = color;
+    }
     setSettings((prev) => ({ ...prev, iconColors: next }));
-    applyIconColor(extKey, color);
+    for (const key of extKeys) {
+      applyIconColor(key, color);
+    }
     // eslint-disable-next-line no-console
-    console.log(`[TokyoNight] Icon color set: ${extKey} → ${color}`);
+    console.log(`[TokyoNight] Icon color set: [${extKeys.join(', ')}] → ${color}`);
     try {
       await storage.set('iconColors', next);
     } catch (err) {
@@ -444,12 +455,19 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <tbody>
               {ICON_ROWS.map((row, idx) => {
-                const currentColor = settings.iconColors[row.key] || DEFAULT_SETTINGS.iconColors[row.key] || 'var(--nim-text-muted)';
+                const firstKey = row.keys[0];
+                const currentColor =
+                  settings.iconColors[firstKey] ||
+                  DEFAULT_SETTINGS.iconColors[firstKey] ||
+                  'var(--nim-text-muted)';
                 return (
-                  <tr key={row.key} style={{
-                    borderTop: idx === 0 ? 'none' : '1px solid var(--nim-border)',
-                  }}>
-                    <td style={{ padding: '6px 12px', fontFamily: 'monospace', color: 'var(--nim-text-muted)', width: 140 }}>
+                  <tr
+                    key={row.label}
+                    style={{
+                      borderTop: idx === 0 ? 'none' : '1px solid var(--nim-border)',
+                    }}
+                  >
+                    <td style={{ padding: '6px 12px', fontSize: 12, color: 'var(--nim-text)', width: 240 }}>
                       {row.label}
                     </td>
                     <td style={{ padding: '6px 12px', color: currentColor, fontFamily: 'monospace', fontSize: 12 }}>
@@ -458,7 +476,7 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
                     <td style={{ padding: '6px 12px', textAlign: 'right', width: 60 }}>
                       <ColorPicker
                         value={currentColor}
-                        onChange={(c) => updateIconColor(row.key, c)}
+                        onChange={(c) => updateIconColors(row.keys, c)}
                       />
                     </td>
                   </tr>
