@@ -40,7 +40,7 @@ export const settingsPanel = {
  */
 export async function activate(context: ExtensionContext): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log('[TokyoNight] Extension activated (v2.0.2)');
+  console.log('[TokyoNight] Extension activated (v2.0.3)');
   // eslint-disable-next-line no-console
   console.log('[TokyoNight] context:', context);
   // eslint-disable-next-line no-console

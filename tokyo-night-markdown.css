@@ -39,6 +39,26 @@
   padding-top: var(--tokyo-night-top-padding, 80px);
 }
 
+/*
+ * Hide the editor's vertical scrollbar for a cleaner doc surface. Scroll
+ * functionality stays (mouse wheel, trackpad, keyboard) — only the visible
+ * scrollbar disappears. Targets the most common scroll containers; if
+ * Nimbalyst uses a different element for editor scrolling, the rule is
+ * harmless (no match, no effect).
+ */
+.nimbalyst-editor .editor-scroller,
+.nimbalyst-editor .editor-container,
+.nimbalyst-editor .editor {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge legacy */
+}
+
+.nimbalyst-editor .editor-scroller::-webkit-scrollbar,
+.nimbalyst-editor .editor-container::-webkit-scrollbar,
+.nimbalyst-editor .editor::-webkit-scrollbar {
+  display: none;               /* Chromium/Electron/WebKit */
+}
+
 /* ---------- Headings ---------------------------------------------------- */
 
 .nim-h1 {
@@ -351,36 +371,36 @@ ul[class*="nim-"] li {
  * any class we added. Attributes survive the className update.
  */
 
-[data-tn-file-ext="md"] .file-tree-icon          { color: var(--tokyo-night-icon-md, #a4df2e); }
-[data-tn-file-ext="markdown"] .file-tree-icon    { color: var(--tokyo-night-icon-markdown, #a4df2e); }
-[data-tn-file-ext="json"] .file-tree-icon        { color: var(--tokyo-night-icon-json, #ae81ff); }
-[data-tn-file-ext="ts"] .file-tree-icon          { color: var(--tokyo-night-icon-ts, #7aa2f7); }
-[data-tn-file-ext="tsx"] .file-tree-icon         { color: var(--tokyo-night-icon-tsx, #7aa2f7); }
-[data-tn-file-ext="js"] .file-tree-icon          { color: var(--tokyo-night-icon-js, #e0af68); }
-[data-tn-file-ext="jsx"] .file-tree-icon         { color: var(--tokyo-night-icon-jsx, #e0af68); }
-[data-tn-file-ext="mjs"] .file-tree-icon         { color: var(--tokyo-night-icon-mjs, #e0af68); }
-[data-tn-file-ext="cjs"] .file-tree-icon         { color: var(--tokyo-night-icon-cjs, #e0af68); }
-[data-tn-file-ext="py"] .file-tree-icon          { color: var(--tokyo-night-icon-py, #bb9af7); }
-[data-tn-file-ext="java"] .file-tree-icon        { color: var(--tokyo-night-icon-java, #ff9e64); }
-[data-tn-file-ext="go"] .file-tree-icon          { color: var(--tokyo-night-icon-go, #ff9e64); }
-[data-tn-file-ext="rs"] .file-tree-icon          { color: var(--tokyo-night-icon-rs, #ff9e64); }
-[data-tn-file-ext="cpp"] .file-tree-icon         { color: var(--tokyo-night-icon-cpp, #9ece6a); }
-[data-tn-file-ext="c"] .file-tree-icon           { color: var(--tokyo-night-icon-c, #9ece6a); }
-[data-tn-file-ext="h"] .file-tree-icon           { color: var(--tokyo-night-icon-h, #9ece6a); }
-[data-tn-file-ext="hpp"] .file-tree-icon         { color: var(--tokyo-night-icon-hpp, #9ece6a); }
-[data-tn-file-ext="html"] .file-tree-icon        { color: var(--tokyo-night-icon-html, #f7768e); }
-[data-tn-file-ext="htm"] .file-tree-icon         { color: var(--tokyo-night-icon-htm, #f7768e); }
-[data-tn-file-ext="css"] .file-tree-icon         { color: var(--tokyo-night-icon-css, #7dcfff); }
-[data-tn-file-ext="scss"] .file-tree-icon        { color: var(--tokyo-night-icon-scss, #7dcfff); }
-[data-tn-file-ext="sass"] .file-tree-icon        { color: var(--tokyo-night-icon-sass, #7dcfff); }
-[data-tn-file-ext="less"] .file-tree-icon        { color: var(--tokyo-night-icon-less, #7dcfff); }
-[data-tn-file-ext="xml"] .file-tree-icon         { color: var(--tokyo-night-icon-xml, #e0af68); }
-[data-tn-file-ext="svg"] .file-tree-icon         { color: var(--tokyo-night-icon-svg, #bb9af7); }
-[data-tn-file-ext="yaml"] .file-tree-icon        { color: var(--tokyo-night-icon-yaml, #73daca); }
-[data-tn-file-ext="yml"] .file-tree-icon         { color: var(--tokyo-night-icon-yml, #73daca); }
-[data-tn-file-ext="toml"] .file-tree-icon        { color: var(--tokyo-night-icon-toml, #73daca); }
-[data-tn-file-ext="csv"] .file-tree-icon         { color: var(--tokyo-night-icon-csv, #9ece6a); }
-[data-tn-file-ext="_readme"] .file-tree-icon     { color: var(--tokyo-night-icon-_readme, #7aa2f7); }
-[data-tn-file-ext="_package"] .file-tree-icon    { color: var(--tokyo-night-icon-_package, #f7768e); }
-[data-tn-file-ext="_gitignore"] .file-tree-icon  { color: var(--tokyo-night-icon-_gitignore, #787c99); }
-[data-tn-file-ext="_license"] .file-tree-icon    { color: var(--tokyo-night-icon-_license, #787c99); }
+[data-tn-file-ext="md"] .file-tree-icon          { color: var(--tokyo-night-icon-md, #a4df2e) !important; }
+[data-tn-file-ext="markdown"] .file-tree-icon    { color: var(--tokyo-night-icon-markdown, #a4df2e) !important; }
+[data-tn-file-ext="json"] .file-tree-icon        { color: var(--tokyo-night-icon-json, #ae81ff) !important; }
+[data-tn-file-ext="ts"] .file-tree-icon          { color: var(--tokyo-night-icon-ts, #7aa2f7) !important; }
+[data-tn-file-ext="tsx"] .file-tree-icon         { color: var(--tokyo-night-icon-tsx, #7aa2f7) !important; }
+[data-tn-file-ext="js"] .file-tree-icon          { color: var(--tokyo-night-icon-js, #e0af68) !important; }
+[data-tn-file-ext="jsx"] .file-tree-icon         { color: var(--tokyo-night-icon-jsx, #e0af68) !important; }
+[data-tn-file-ext="mjs"] .file-tree-icon         { color: var(--tokyo-night-icon-mjs, #e0af68) !important; }
+[data-tn-file-ext="cjs"] .file-tree-icon         { color: var(--tokyo-night-icon-cjs, #e0af68) !important; }
+[data-tn-file-ext="py"] .file-tree-icon          { color: var(--tokyo-night-icon-py, #bb9af7) !important; }
+[data-tn-file-ext="java"] .file-tree-icon        { color: var(--tokyo-night-icon-java, #ff9e64) !important; }
+[data-tn-file-ext="go"] .file-tree-icon          { color: var(--tokyo-night-icon-go, #ff9e64) !important; }
+[data-tn-file-ext="rs"] .file-tree-icon          { color: var(--tokyo-night-icon-rs, #ff9e64) !important; }
+[data-tn-file-ext="cpp"] .file-tree-icon         { color: var(--tokyo-night-icon-cpp, #9ece6a) !important; }
+[data-tn-file-ext="c"] .file-tree-icon           { color: var(--tokyo-night-icon-c, #9ece6a) !important; }
+[data-tn-file-ext="h"] .file-tree-icon           { color: var(--tokyo-night-icon-h, #9ece6a) !important; }
+[data-tn-file-ext="hpp"] .file-tree-icon         { color: var(--tokyo-night-icon-hpp, #9ece6a) !important; }
+[data-tn-file-ext="html"] .file-tree-icon        { color: var(--tokyo-night-icon-html, #f7768e) !important; }
+[data-tn-file-ext="htm"] .file-tree-icon         { color: var(--tokyo-night-icon-htm, #f7768e) !important; }
+[data-tn-file-ext="css"] .file-tree-icon         { color: var(--tokyo-night-icon-css, #7dcfff) !important; }
+[data-tn-file-ext="scss"] .file-tree-icon        { color: var(--tokyo-night-icon-scss, #7dcfff) !important; }
+[data-tn-file-ext="sass"] .file-tree-icon        { color: var(--tokyo-night-icon-sass, #7dcfff) !important; }
+[data-tn-file-ext="less"] .file-tree-icon        { color: var(--tokyo-night-icon-less, #7dcfff) !important; }
+[data-tn-file-ext="xml"] .file-tree-icon         { color: var(--tokyo-night-icon-xml, #e0af68) !important; }
+[data-tn-file-ext="svg"] .file-tree-icon         { color: var(--tokyo-night-icon-svg, #bb9af7) !important; }
+[data-tn-file-ext="yaml"] .file-tree-icon        { color: var(--tokyo-night-icon-yaml, #73daca) !important; }
+[data-tn-file-ext="yml"] .file-tree-icon         { color: var(--tokyo-night-icon-yml, #73daca) !important; }
+[data-tn-file-ext="toml"] .file-tree-icon        { color: var(--tokyo-night-icon-toml, #73daca) !important; }
+[data-tn-file-ext="csv"] .file-tree-icon         { color: var(--tokyo-night-icon-csv, #9ece6a) !important; }
+[data-tn-file-ext="_readme"] .file-tree-icon     { color: var(--tokyo-night-icon-_readme, #7aa2f7) !important; }
+[data-tn-file-ext="_package"] .file-tree-icon    { color: var(--tokyo-night-icon-_package, #f7768e) !important; }
+[data-tn-file-ext="_gitignore"] .file-tree-icon  { color: var(--tokyo-night-icon-_gitignore, #787c99) !important; }
+[data-tn-file-ext="_license"] .file-tree-icon    { color: var(--tokyo-night-icon-_license, #787c99) !important; }

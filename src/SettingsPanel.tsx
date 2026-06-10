@@ -106,14 +106,18 @@ function ColorPicker({ value, onChange }: ColorPickerProps) {
       {open && (
         <>
           <div
-            onClick={() => setOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+            }}
             style={{
               position: 'fixed',
               inset: 0,
-              zIndex: 1,
+              zIndex: 999998,
             }}
           />
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
               position: 'absolute',
               top: '100%',
@@ -124,7 +128,7 @@ function ColorPicker({ value, onChange }: ColorPickerProps) {
               border: '1px solid var(--nim-border)',
               borderRadius: 6,
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-              zIndex: 2,
+              zIndex: 999999,
               minWidth: 200,
             }}
           >
@@ -133,7 +137,8 @@ function ColorPicker({ value, onChange }: ColorPickerProps) {
                 <button
                   key={c}
                   type="button"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onChange(c);
                     setOpen(false);
                   }}
@@ -172,7 +177,10 @@ function ColorPicker({ value, onChange }: ColorPickerProps) {
               />
               <button
                 type="button"
-                onClick={applyCustom}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  applyCustom();
+                }}
                 style={{
                   padding: '4px 10px',
                   backgroundColor: 'var(--nim-primary)',
@@ -331,12 +339,21 @@ export function TokyoNightSettingsPanel({ storage }: SettingsPanelProps) {
     }
   };
 
-  // Per-extension icon color update
+  // Per-extension icon color update.
+  // Apply CSS variable BEFORE awaiting storage so the visual change is
+  // independent of storage success — if storage.set hangs or throws, the
+  // user still sees the color update.
   const updateIconColor = async (extKey: string, color: string) => {
     const next = { ...settings.iconColors, [extKey]: color };
     setSettings((prev) => ({ ...prev, iconColors: next }));
-    await storage.set('iconColors', next);
     applyIconColor(extKey, color);
+    // eslint-disable-next-line no-console
+    console.log(`[TokyoNight] Icon color set: ${extKey} → ${color}`);
+    try {
+      await storage.set('iconColors', next);
+    } catch (err) {
+      console.error('[TokyoNight] Failed to persist icon color:', err);
+    }
   };
 
   const handleReset = async () => {
